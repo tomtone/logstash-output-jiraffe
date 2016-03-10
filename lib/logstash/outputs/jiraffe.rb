@@ -91,6 +91,9 @@ class LogStash::Outputs::Jiraffe < LogStash::Outputs::Base
   # JIRA Reporter
   config :assignee, :validate => :string
 
+  # JIRA Project Prefix
+  config :project
+
   ### The following have not been implemented
   # Ticket creation method
   #config :method, :validate => :string, :default => 'new'
@@ -132,11 +135,18 @@ class LogStash::Outputs::Jiraffe < LogStash::Outputs::Base
     summary = event.sprintf(@summary)
     summary = "#{summary[0,252]}..." if summary.length > 255
 
+    # add Projec prefix if present
+    if @project
+      summary = "[#{project}] #{summary}"
+    end
+
     # search for existing issue
     result = Jiralicious.search("summary~" << @summary) # Any jql can be used here
 
-    if result.issues.count == 1
+    # if result contains only single issue use this, otherwise create new one
+    if result.issues.length == 1
       issue = result.issues[0]
+      # increase custom occurrences field by 1
       issue.fields.set("option_1234", issue.fields.get("option_1234") + 1)
     else
       issue = Jiralicious::Issue.new
