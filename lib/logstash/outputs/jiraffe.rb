@@ -141,7 +141,7 @@ class LogStash::Outputs::Jiraffe < LogStash::Outputs::Base
     end
 
     # search for existing issue
-    result = Jiralicious.search("summary~" << @summary) # Any jql can be used here
+    result = Jiralicious.search("summary~#{summary}") # Any jql can be used here
 
     # if result contains only single issue use this, otherwise create new one
     if result.issues.length == 1
