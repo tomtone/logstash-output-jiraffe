@@ -1,5 +1,5 @@
 Gem::Specification.new do |s|
-  s.name = 'logstash-output-example'
+  s.name = 'logstash-output-jiraffe'
   s.version         = "2.0.0"
   s.licenses = ["Apache License (2.0)"]
   s.summary = "This example output does nothing."
