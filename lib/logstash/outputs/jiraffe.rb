@@ -133,6 +133,12 @@ class LogStash::Outputs::Jiraffe < LogStash::Outputs::Base
     summary = event.sprintf(@summary)
     summary = "#{summary[0,252]}..." if summary.length > 255
 
+    # example values
+    # summary = "test"
+    # @projectid = '13641'
+    # @issuetypeid = '10003'
+    # @priority = "3"
+
     # add Projec prefix if present
     if @project
       summary = "[#{project}] #{summary}"
