@@ -119,8 +119,6 @@ class LogStash::Outputs::Jiraffe < LogStash::Outputs::Base
 
   public
   def receive(event)
-
-
     return if event == LogStash::SHUTDOWN
 
     Jiralicious.configure do |config|
@@ -140,19 +138,19 @@ class LogStash::Outputs::Jiraffe < LogStash::Outputs::Base
       summary = "[#{project}] #{summary}"
     end
 
-    # search for existing issue
-    result = Jiralicious.search("summary~#{summary}") # Any jql can be used here
+    description = event.sprintf(event.to_hash.to_yaml)
 
-    # if result contains only single issue use this, otherwise create new one
-    if result.issues.length == 1
+    # search for existing issue
+    result = Jiralicious.search("summary~'#{summary}'") # Any jql can be used here
+
+    # do not create new issue if we have an existing one
+    if result.issues.length > 0
       issue = result.issues[0]
-      # increase custom occurrences field by 1
-      issue.fields.set("option_1234", issue.fields.get("option_1234") + 1)
     else
       issue = Jiralicious::Issue.new
       issue.fields.set_id("project", @projectid) # would have prefered a project key, https://github.com/jstewart/jiralicious/issues/16
       issue.fields.set("summary", summary)
-      issue.fields.set("description", event.sprintf(event.to_hash.to_yaml))
+      issue.fields.set("description", description)
       issue.fields.set_id("issuetype", @issuetypeid)
       issue.fields.set_name("reporter", @reporter) if @reporter
       issue.fields.set_name("assignee", @assignee) if @assignee
